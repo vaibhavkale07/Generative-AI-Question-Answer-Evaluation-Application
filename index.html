@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e3bfbf;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+        }
+        select, input[type="text"], button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #questionDisplay {
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-height: 50px;
+            margin: 10px 0;
+        }
+
+      
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Question Generator</h1>
+        <select id="topicDropdown">
+            <option value="">Select a topic</option>
+            <option value="Geography">Geography</option>
+            <option value="Health">Health</option>
+            <option value="Sports">Sports</option>
+        </select>
+        <div id="questionDisplay">Your question will appear here...</div>
+        <input type="text" id="answerInput" placeholder="Your answer..." />
+        <button  id="submitButton"> <span>Submit Answer (click and wait for 5 Seconds)</span></button>
+        <div id="evaluationDisplay" style="margin-top: 20px; padding: 10px; background-color: #fff; border: 1px solid #ccc; border-radius: 4px; min-height: 50px;">Evaluation will appear here...</div>
+    </div>
+
+    <script>
+       
+        document.getElementById('topicDropdown').addEventListener('change', async function() {
+            const selectedTopic = this.value;
+            if (selectedTopic) {
+                const response = await fetch('/generate_question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: selectedTopic })
+                });
+                const data = await response.json();
+                document.getElementById('questionDisplay').innerText = data.question;
+            } else {
+                document.getElementById('questionDisplay').innerText = "Your question will appear here...";
+            }
+        });
+
+        
+        document.getElementById('submitButton').addEventListener('click', async function() {
+            const question = document.getElementById('questionDisplay').innerText;
+            const answer = document.getElementById('answerInput').value;
+            if (question !== "Your question will appear here..." && answer) {
+                const response = await fetch('/evaluate_answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question, answer: answer })
+                });
+                const data = await response.json();
+                document.getElementById('evaluationDisplay').innerText = data.evaluation;
+            } else {
+                alert("Please generate a question and provide an answer.");
+            }
+        });
+    </script>
+</body>
+</html>
